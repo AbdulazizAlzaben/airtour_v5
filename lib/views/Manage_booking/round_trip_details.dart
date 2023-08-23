@@ -57,10 +57,10 @@ class _RoundTripDetailsState extends State<RoundTripDetails> {
     String formattedDate = formatter.format(departureDate);
     List<String> parts = formattedDate.split(' ');
     int month = int.parse(parts[0]);
-    String monthName = monthNames[month];
+    String monthName = monthNames[month - 1];
     String day = parts[1];
     String year = parts[2];
-    return '$monthName $day $year';
+    return '$day $monthName'; //$year';
   }
 
   @override
@@ -120,22 +120,42 @@ class _RoundTripDetailsState extends State<RoundTripDetails> {
                           ),
                           Column(children: [
                             Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  "${date1(departFlight.depDate)}",
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  children: [
+                                    Text("Departure: ",
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        )),
+                                    Text(
+                                      "${date1(departFlight.depDate)}",
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const Text("-"),
-                                Text(
-                                  "${date1(departFlight.arrDate)}",
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                // const Text("-"),
+                                Row(
+                                  children: [
+                                    Text("Arrival: ",
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        )),
+                                    Text(
+                                      "${date1(departFlight.arrDate)}",
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -355,35 +375,43 @@ class _RoundTripDetailsState extends State<RoundTripDetails> {
                     visible: bookingType != 'business',
                     child: ElevatedButton(
                       onPressed: () async {
-                        bool? nextPage = await Navigator.push(
-                          context,
-                          MaterialPageRoute<bool>(
-                              builder: (context) => Payment(
-                                  paymentFor: 'upgrade',
-                                  id1: 'none',
-                                  id2: 'none',
-                                  flightClass: 'none',
-                                  tickets: tickets)),
-                        );
-                        if (nextPage == true) {
-                          bool result = await _bookingService.upgradeRoundTrip(
-                            bookingId: currentBooking.documentId,
-                            departureFlightId: departFlight.documentId,
-                            returnFlightId: retuFlight.documentId,
-                            numOfPas: currentBooking.numOfSeats,
+                        if (await _flightsService.didFly(
+                            departureFlightId: departFlight.documentId)) {
+                          bool? nextPage = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Payment(
+                                    paymentFor: 'upgrade',
+                                    id1: 'none',
+                                    id2: 'none',
+                                    flightClass: 'none',
+                                    tickets: tickets)),
                           );
-                          if (result) {
-                            setState(() {
-                              bookingType = 'business';
-                            });
+                          if (nextPage == true) {
+                            bool result =
+                                await _bookingService.upgradeRoundTrip(
+                              bookingId: currentBooking.documentId,
+                              departureFlightId: departFlight.documentId,
+                              returnFlightId: retuFlight.documentId,
+                              numOfPas: currentBooking.numOfSeats,
+                            );
 
-                            showFeedback(
-                                context, 'Booking successfully upgraded.');
+                            if (result == true) {
+                              setState(() {
+                                showFeedback(
+                                    context, 'Booking successfully upgraded.');
+                                bookingType = 'business';
+                              });
+                            } else {
+                              showFeedback(
+                                  context, 'Failed to upgrade booking.');
+                            }
                           } else {
-                            showFeedback(context, 'Failed to upgrade booking.');
+                            showErrorDialog(context, 'Payment Failed');
                           }
                         } else {
-                          showErrorDialog(context, 'Payment Failed');
+                          showErrorDialog(context,
+                              'Cannot Upgrade Booking, Upgradation Deadline Passed');
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -415,7 +443,7 @@ class _RoundTripDetailsState extends State<RoundTripDetails> {
                           flightClass: currentBooking.bookingClass,
                           numOfPas: currentBooking.numOfSeats);
 
-                      if (result) {
+                      if (result == true) {
                         showFeedback(context, 'Booking successfully deleted.');
                         Navigator.pop(context);
                       } else {

@@ -26,68 +26,102 @@ class _ProfileViewState extends State<ProfileView> {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
-      body: Center(
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'User Balance',
-              style: TextStyle(fontSize: 24.0),
-            ),
-            const SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(updateRoute);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            // const Text(
+            //   'User Balance',
+            //   style: TextStyle(fontSize: 24.0),
+            // ),
+            //const SizedBox(height: 32.0),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Container(
+                height: 60,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(updateRoute);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Change Email',
+                        style: TextStyle(fontSize: 16.0, color: Colors.black),
+                      ),
+                      Text(
+                        '>',
+                        style: TextStyle(fontSize: 14.0, color: Colors.black),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                child: Text(
-                  'Change Email',
-                  style: TextStyle(fontSize: 18.0),
+            ),
+            //const SizedBox(height: 16.0),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Container(
+                height: 60,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Handle change password here
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Change Password',
+                        style: TextStyle(fontSize: 16.0, color: Colors.black),
+                      ),
+                      Text(
+                        '>',
+                        style: TextStyle(fontSize: 14.0, color: Colors.black),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Handle change password here
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                child: Text(
-                  'Change Password',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Handle account deletion here
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                child: Text(
-                  'Delete Account',
-                  style: TextStyle(fontSize: 18.0),
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Container(
+                height: 60,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Handle account deletion here
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: Text(
+                      'Delete Account',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ),
                 ),
               ),
             ),

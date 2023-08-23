@@ -52,10 +52,10 @@ class _OneWayDetailsState extends State<OneWayDetails> {
     String formattedDate = formatter.format(departureDate);
     List<String> parts = formattedDate.split(' ');
     int month = int.parse(parts[0]);
-    String monthName = monthNames[month];
+    String monthName = monthNames[month - 1];
     String day = parts[1];
     String year = parts[2];
-    return '$monthName $day $year';
+    return '$day $monthName'; //$year';
   }
 
   @override
@@ -97,13 +97,13 @@ class _OneWayDetailsState extends State<OneWayDetails> {
                                 "Destination Flight",
                                 style: TextStyle(fontSize: 22),
                               ),
-                              Text(
-                                date1(departFlight.depDate),
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              // Text(
+                              //   date1(departFlight.depDate),
+                              //   style: const TextStyle(
+                              //     fontSize: 17,
+                              //     fontWeight: FontWeight.bold,
+                              //   ),
+                              // ),
                             ],
                           ),
                           Container(
@@ -113,6 +113,49 @@ class _OneWayDetailsState extends State<OneWayDetails> {
                             //child: SizedBox.expand(),
                           ),
                           Column(children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text("Departure: ",
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        )),
+                                    Text(
+                                      "${date1(departFlight.depDate)}",
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                // const Text("-"),
+                                Row(
+                                  children: [
+                                    Text("Arrival: ",
+                                        style: TextStyle(
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        )),
+                                    Text(
+                                      "${date1(departFlight.arrDate)}",
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 3,
+                            ),
                             Row(
                               children: [
                                 Text(
@@ -166,7 +209,7 @@ class _OneWayDetailsState extends State<OneWayDetails> {
                                     Row(
                                       children: [
                                         Text(
-                                            "Price: ${widget.booking.bookingPrice}")
+                                            "Passenger: ${widget.booking.numOfSeats}")
                                       ],
                                     )
                                   ],
@@ -190,34 +233,41 @@ class _OneWayDetailsState extends State<OneWayDetails> {
                     visible: bookingType != 'business',
                     child: ElevatedButton(
                       onPressed: () async {
-                        bool nextPage = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Payment(
-                                  paymentFor: 'upgrade',
-                                  id1: 'none',
-                                  id2: 'none',
-                                  flightClass: 'none',
-                                  tickets: tickets)),
-                        );
-                        if (nextPage == true) {
-                          bool result = await _bookingService.upgradeOneWay(
-                            bookingId: currentBooking.documentId,
-                            departureFlightId: departFlight.documentId,
-                            numOfPas: currentBooking.numOfSeats,
+                        if (await _flightsService.didFly(
+                            departureFlightId: departFlight.documentId)) {
+                          bool? nextPage = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Payment(
+                                    paymentFor: 'upgrade',
+                                    id1: 'none',
+                                    id2: 'none',
+                                    flightClass: 'none',
+                                    tickets: tickets)),
                           );
-                          if (result) {
-                            setState(() {
-                              bookingType = 'business';
-                            });
+                          if (nextPage == true) {
+                            bool result = await _bookingService.upgradeOneWay(
+                              bookingId: currentBooking.documentId,
+                              departureFlightId: departFlight.documentId,
+                              numOfPas: currentBooking.numOfSeats,
+                            );
 
-                            showFeedback(
-                                context, 'Booking successfully upgraded.');
+                            if (result == true) {
+                              setState(() {
+                                showFeedback(
+                                    context, 'Booking successfully upgraded.');
+                                bookingType = 'business';
+                              });
+                            } else {
+                              showFeedback(
+                                  context, 'Failed to upgrade booking.');
+                            }
                           } else {
-                            showFeedback(context, 'Failed to upgrade booking.');
+                            showErrorDialog(context, 'Payment Failed');
                           }
                         } else {
-                          showErrorDialog(context, 'Payment Failed');
+                          showErrorDialog(context,
+                              'Cannot Upgrade Booking, Upgradation Deadline Passed');
                         }
                       },
                       style: ElevatedButton.styleFrom(
